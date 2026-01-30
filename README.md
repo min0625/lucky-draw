@@ -12,17 +12,51 @@
 
 ## 快速開始
 
-1. **直接使用**
-   ```bash
-   # 直接在瀏覽器中開啟 index.html
-   ```
+### 方式零：線上試玩（最快）
 
-2. **本地伺服器** (選用)
-   ```bash
-   # 使用 Python 啟動本地伺服器
-   python -m http.server 8000
-   # 然後在瀏覽器訪問 http://localhost:8000
-   ```
+前往 [https://min0625.github.io/lucky-draw/](https://min0625.github.io/lucky-draw/) 立即線上使用，無需安裝。
+
+### 方式一：直接開啟（推薦）
+
+在瀏覽器中直接開啟 `index.html` 檔案，無需任何安裝或設定。
+
+### 方式二：本地伺服器（選用）
+
+若需要本地伺服器環境進行測試：
+
+```bash
+# 安裝依賴
+npm install
+
+# 啟動本地伺服器
+npx serve
+# 然後在瀏覽器訪問顯示的 URL
+```
+
+## 開發
+
+### 代碼檢查與格式化
+
+本專案使用 [Biome](https://biomejs.dev/) 進行代碼品質檢查與自動格式化。
+
+```bash
+# 檢查代碼品質（顯示錯誤但不修復）
+npm run lint
+
+# 自動格式化代碼
+npm run format
+
+# 檢查並修復（推薦使用）
+npm run check
+```
+
+### 代碼風格指南
+
+詳見 [AGENTS.md](AGENTS.md) 的詳細開發指南，包括：
+- HTML 語意化與無障礙設計建議
+- CSS 變數與佈局最佳實踐
+- JavaScript 命名慣例與函式設計原則
+- Commit 訊息與 Pull Request 規範
 
 ## 使用方法
 

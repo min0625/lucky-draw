@@ -1,0 +1,16 @@
+{
+  "name": "lucky-draw",
+  "version": "0.1.0",
+  "description": "A pure frontend lucky draw web application",
+  "type": "module",
+  "scripts": {
+    "lint": "biome lint .",
+    "format": "biome format . --write",
+    "check": "biome check . --write"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4"
+  },
+  "keywords": ["lucky-draw", "raffle", "random-selection"],
+  "license": "Apache-2.0"
+}
