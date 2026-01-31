@@ -660,7 +660,7 @@ function handleExportResult() {
   if (format === null) return; // 取消
 
   const drawTitle = elements.drawTitleInput.value.trim();
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const timestamp = formatTimestampForFilename(new Date());
 
   if (format === "1") {
     // 匯出為 CSV
@@ -721,7 +721,7 @@ function handleExportHistory() {
     return;
   }
 
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const timestamp = formatTimestampForFilename(new Date());
   const jsonContent = JSON.stringify(state.history, null, 2);
 
   downloadFile(
@@ -747,6 +747,17 @@ function downloadFile(content, filename, mimeType) {
 }
 
 // ===== 工具函式 =====
+function formatTimestampForFilename(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${year}${month}${day}-${hours}${minutes}${seconds}`;
+}
+
 function formatDateTime(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
