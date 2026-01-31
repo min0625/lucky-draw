@@ -314,7 +314,7 @@ function displayResults(winners) {
   if (drawTitle) {
     const titleElement = document.createElement("div");
     titleElement.className = "result-title";
-    titleElement.textContent = `【${escapeHtml(drawTitle)}】`;
+    titleElement.innerHTML = `【${escapeHtml(drawTitle)}】`;
     elements.resultDisplay.appendChild(titleElement);
   }
 
