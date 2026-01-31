@@ -13,6 +13,7 @@ const elements = {
   participantCount: document.getElementById("count"),
   drawCountInput: document.getElementById("draw-count"),
   allowDuplicateCheckbox: document.getElementById("allow-duplicate"),
+  enableSoundCheckbox: document.getElementById("enable-sound"),
   drawBtn: document.getElementById("draw-btn"),
   clearBtn: document.getElementById("clear-btn"),
   resetBtn: document.getElementById("reset-btn"),
@@ -30,6 +31,53 @@ const state = {
   drawnParticipants: [],
   history: [],
 };
+
+// ===== 音效管理 =====
+let audioContext = null;
+
+function initAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return audioContext;
+}
+
+function playSound(frequency, duration, type = "sine") {
+  if (!elements.enableSoundCheckbox?.checked) return;
+
+  try {
+    const ctx = initAudioContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.frequency.value = frequency;
+    oscillator.type = type;
+
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      ctx.currentTime + duration
+    );
+
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + duration);
+  } catch (err) {
+    console.error("無法播放音效:", err);
+  }
+}
+
+function playRollingSound() {
+  playSound(400, 0.05, "square");
+}
+
+function playWinSound() {
+  playSound(800, 0.3, "sine");
+  setTimeout(() => playSound(1000, 0.3, "sine"), 100);
+  setTimeout(() => playSound(1200, 0.4, "sine"), 200);
+}
 
 // ===== 初始化 =====
 function init() {
@@ -108,19 +156,72 @@ function handleDraw() {
     return;
   }
 
-  // 執行抽獎
-  const winners = drawWinners(state.participants, drawCount, allowDuplicate);
+  // 執行抽獎動畫
+  performDrawAnimation(drawCount, allowDuplicate);
+}
 
-  // 顯示結果
-  displayResults(winners);
+// ===== 抽獎動畫 =====
+function performDrawAnimation(drawCount, allowDuplicate) {
+  // 禁用抽獎按鈕
+  elements.drawBtn.disabled = true;
+  elements.drawBtn.textContent = "🎲 抽獎中...";
 
-  // 儲存記錄
-  saveToHistory(winners);
+  // 顯示滾動動畫
+  showRollingAnimation();
 
-  // 更新已抽中名單
-  if (!allowDuplicate) {
-    state.drawnParticipants.push(...winners);
+  // 1.5 秒後顯示結果
+  setTimeout(() => {
+    // 執行抽獎
+    const winners = drawWinners(state.participants, drawCount, allowDuplicate);
+
+    // 顯示結果
+    displayResults(winners);
+
+    // 儲存記錄
+    saveToHistory(winners);
+
+    // 更新已抽中名單
+    if (!allowDuplicate) {
+      state.drawnParticipants.push(...winners);
+    }
+
+    // 恢復按鈕狀態
+    elements.drawBtn.disabled = false;
+    elements.drawBtn.textContent = "🎲 開始抽獎";
+  }, 1500);
+}
+
+// ===== 顯示滾動動畫 =====
+function showRollingAnimation() {
+  const availableParticipants = state.participants.filter(
+    (p) => !state.drawnParticipants.includes(p)
+  );
+
+  if (availableParticipants.length === 0) {
+    return;
   }
+
+  elements.resultDisplay.innerHTML = '<div class="rolling-animation"></div>';
+  const rollingElement =
+    elements.resultDisplay.querySelector(".rolling-animation");
+
+  let counter = 0;
+  const maxRolls = 30;
+  const interval = setInterval(() => {
+    const randomIndex = Math.floor(
+      Math.random() * availableParticipants.length
+    );
+    const randomName = availableParticipants[randomIndex];
+    rollingElement.textContent = `🎯 ${escapeHtml(randomName)}`;
+
+    // 播放滾動音效
+    playRollingSound();
+
+    counter++;
+    if (counter >= maxRolls) {
+      clearInterval(interval);
+    }
+  }, 50);
 }
 
 // ===== 抽獎邏輯 =====
@@ -160,17 +261,28 @@ function displayResults(winners) {
     return;
   }
 
-  elements.resultDisplay.innerHTML = winners
-    .map(
-      (winner, index) => `
-            <div class="result-item">
-                🎉 ${index + 1}. ${escapeHtml(winner)}
-            </div>
-        `
-    )
-    .join("");
+  elements.resultDisplay.innerHTML = "";
 
-  elements.resultActions.classList.add("show");
+  // 播放勝利音效
+  playWinSound();
+
+  // 使用階梯式動畫顯示每個結果
+  winners.forEach((winner, index) => {
+    setTimeout(() => {
+      const resultItem = document.createElement("div");
+      resultItem.className = "result-item";
+      resultItem.style.animationDelay = `${index * 0.1}s`;
+      resultItem.innerHTML = `🎉 ${index + 1}. ${escapeHtml(winner)}`;
+      elements.resultDisplay.appendChild(resultItem);
+
+      // 在最後一個項目顯示後顯示操作按鈕
+      if (index === winners.length - 1) {
+        setTimeout(() => {
+          elements.resultActions.classList.add("show");
+        }, 300);
+      }
+    }, index * 200);
+  });
 }
 
 // ===== 清空名單 =====
