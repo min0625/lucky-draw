@@ -29,14 +29,30 @@
               <span class="participant-count"
                 >參與人數: <strong id="count">0</strong></span
               >
-              <button
-                id="clear-btn"
-                class="btn btn-secondary"
-                aria-label="清空名單"
-              >
-                清空名單
-              </button>
+              <div class="input-actions">
+                <button
+                  id="import-btn"
+                  class="btn btn-secondary"
+                  aria-label="匯入名單"
+                >
+                  📁 匯入
+                </button>
+                <button
+                  id="clear-btn"
+                  class="btn btn-secondary"
+                  aria-label="清空名單"
+                >
+                  清空名單
+                </button>
+              </div>
             </div>
+            <input
+              type="file"
+              id="import-file"
+              accept=".csv,.json,.txt"
+              style="display: none;"
+              aria-label="選擇匯入檔案"
+            >
           </div>
         </section>
 
@@ -100,6 +116,13 @@
             >
               複製結果
             </button>
+            <button
+              id="export-result-btn"
+              class="btn btn-secondary"
+              aria-label="匯出結果"
+            >
+              💾 匯出結果
+            </button>
           </div>
         </section>
 
@@ -108,13 +131,22 @@
           <div id="history-list" class="history-list">
             <p class="empty-state">暫無抽獎記錄</p>
           </div>
-          <button
-            id="clear-history-btn"
-            class="btn btn-secondary"
-            aria-label="清除記錄"
-          >
-            清除記錄
-          </button>
+          <div class="history-actions">
+            <button
+              id="export-history-btn"
+              class="btn btn-secondary"
+              aria-label="匯出記錄"
+            >
+              💾 匯出記錄
+            </button>
+            <button
+              id="clear-history-btn"
+              class="btn btn-secondary"
+              aria-label="清除記錄"
+            >
+              清除記錄
+            </button>
+          </div>
         </section>
       </main>
 
