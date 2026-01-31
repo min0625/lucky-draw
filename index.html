@@ -1,125 +1,125 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="簡單、直觀的純前端抽獎網頁工具">
     <title>Lucky Draw - 抽獎工具</title>
     <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1>🎯 Lucky Draw</h1>
-            <p class="subtitle">簡單、直觀的抽獎工具</p>
-        </header>
+      <header>
+        <h1>🎯 Lucky Draw</h1>
+        <p class="subtitle">簡單、直觀的抽獎工具</p>
+      </header>
 
-        <main>
-            <section class="input-section">
-                <h2>參與者名單</h2>
-                <div class="input-group">
-                    <label for="participants">
-                        請輸入參與者名單（每行一個名字）
-                    </label>
-                    <textarea
-                        id="participants"
-                        placeholder="王小明&#10;李小華&#10;陳小美&#10;張小強"
-                        aria-label="參與者名單輸入框"
-                        rows="10"
-                    ></textarea>
-                    <div class="input-info">
-                        <span class="participant-count">參與人數: <strong id="count">0</strong></span>
-                        <button
-                            id="clear-btn"
-                            class="btn btn-secondary"
-                            aria-label="清空名單"
-                        >
-                            清空名單
-                        </button>
-                    </div>
-                </div>
-            </section>
+      <main>
+        <section class="input-section">
+          <h2>參與者名單</h2>
+          <div class="input-group">
+            <label for="participants">請輸入參與者名單（每行一個名字）</label>
+            <textarea
+              id="participants"
+              placeholder="王小明&#10;李小華&#10;陳小美&#10;張小強"
+              aria-label="參與者名單輸入框"
+              rows="10"
+            ></textarea>
+            <div class="input-info">
+              <span class="participant-count"
+                >參與人數: <strong id="count">0</strong></span
+              >
+              <button
+                id="clear-btn"
+                class="btn btn-secondary"
+                aria-label="清空名單"
+              >
+                清空名單
+              </button>
+            </div>
+          </div>
+        </section>
 
-            <section class="draw-section">
-                <h2>抽獎設定</h2>
-                <div class="settings-group">
-                    <label for="draw-count">抽取人數:</label>
-                    <input
-                        type="number"
-                        id="draw-count"
-                        min="1"
-                        value="1"
-                        aria-label="抽取人數"
-                    >
+        <section class="draw-section">
+          <h2>抽獎設定</h2>
+          <div class="settings-group">
+            <label for="draw-count">抽取人數:</label>
+            <input
+              type="number"
+              id="draw-count"
+              min="1"
+              value="1"
+              aria-label="抽取人數"
+            >
 
-                    <label class="checkbox-label">
-                        <input
-                            type="checkbox"
-                            id="allow-duplicate"
-                            aria-label="允許重複抽取"
-                        >
-                        允許重複抽取
-                    </label>
-                </div>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                id="allow-duplicate"
+                aria-label="允許重複抽取"
+              >
+              允許重複抽取
+            </label>
+          </div>
 
-                <button
-                    id="draw-btn"
-                    class="btn btn-primary"
-                    aria-label="開始抽獎"
-                >
-                    🎲 開始抽獎
-                </button>
-            </section>
+          <button id="draw-btn" class="btn btn-primary" aria-label="開始抽獎">
+            🎲 開始抽獎
+          </button>
+        </section>
 
-            <section class="result-section" id="result-section">
-                <h2>抽獎結果</h2>
-                <div id="result-display" class="result-display">
-                    <p class="empty-state">尚未進行抽獎</p>
-                </div>
-                <div class="result-actions" id="result-actions">
-                    <button
-                        id="reset-btn"
-                        class="btn btn-secondary"
-                        aria-label="重置抽獎"
-                    >
-                        重置
-                    </button>
-                    <button
-                        id="copy-btn"
-                        class="btn btn-secondary"
-                        aria-label="複製結果"
-                    >
-                        複製結果
-                    </button>
-                </div>
-            </section>
+        <section class="result-section" id="result-section">
+          <h2>抽獎結果</h2>
+          <div id="result-display" class="result-display">
+            <p class="empty-state">尚未進行抽獎</p>
+          </div>
+          <div class="result-actions" id="result-actions">
+            <button
+              id="reset-btn"
+              class="btn btn-secondary"
+              aria-label="重置抽獎"
+            >
+              重置
+            </button>
+            <button
+              id="copy-btn"
+              class="btn btn-secondary"
+              aria-label="複製結果"
+            >
+              複製結果
+            </button>
+          </div>
+        </section>
 
-            <section class="history-section" id="history-section">
-                <h2>抽獎記錄</h2>
-                <div id="history-list" class="history-list">
-                    <p class="empty-state">暫無抽獎記錄</p>
-                </div>
-                <button
-                    id="clear-history-btn"
-                    class="btn btn-secondary"
-                    aria-label="清除記錄"
-                >
-                    清除記錄
-                </button>
-            </section>
-        </main>
+        <section class="history-section" id="history-section">
+          <h2>抽獎記錄</h2>
+          <div id="history-list" class="history-list">
+            <p class="empty-state">暫無抽獎記錄</p>
+          </div>
+          <button
+            id="clear-history-btn"
+            class="btn btn-secondary"
+            aria-label="清除記錄"
+          >
+            清除記錄
+          </button>
+        </section>
+      </main>
 
-        <footer>
-            <p>
-                🔒 所有資料僅存於本地瀏覽器，不會上傳至任何伺服器
-                <br>
-                <a href="https://github.com/min0625/lucky-draw" target="_blank" rel="noopener">
-                    GitHub
-                </a>
-            </p>
-        </footer>
+      <footer>
+        <p>
+          🔒 所有資料僅存於本地瀏覽器，不會上傳至任何伺服器
+          <br>
+          <a
+            href="https://github.com/min0625/lucky-draw"
+            target="_blank"
+            rel="noopener"
+          >
+            GitHub
+          </a>
+        </p>
+      </footer>
     </div>
 
     <script src="script.js"></script>
-</body>
+  </body>
 </html>

@@ -63,7 +63,7 @@ function updateParticipantCount() {
   elements.participantCount.textContent = participants.length;
 
   // 更新抽獎按鈕狀態
-  const drawCount = Number.parseInt(elements.drawCountInput.value) || 1;
+  const drawCount = Number.parseInt(elements.drawCountInput.value, 10) || 1;
   const canDraw = participants.length > 0 && drawCount <= participants.length;
   elements.drawBtn.disabled = !canDraw;
 }
@@ -80,7 +80,7 @@ function getParticipants() {
 
 // ===== 驗證抽取人數 =====
 function validateDrawCount() {
-  const drawCount = Number.parseInt(elements.drawCountInput.value) || 1;
+  const drawCount = Number.parseInt(elements.drawCountInput.value, 10) || 1;
   const maxCount = state.participants.length;
   const allowDuplicate = elements.allowDuplicateCheckbox.checked;
 
@@ -95,7 +95,7 @@ function validateDrawCount() {
 
 // ===== 開始抽獎 =====
 function handleDraw() {
-  const drawCount = Number.parseInt(elements.drawCountInput.value) || 1;
+  const drawCount = Number.parseInt(elements.drawCountInput.value, 10) || 1;
   const allowDuplicate = elements.allowDuplicateCheckbox.checked;
 
   if (state.participants.length === 0) {
@@ -208,7 +208,7 @@ async function handleCopy() {
     setTimeout(() => {
       elements.copyBtn.textContent = originalText;
     }, 2000);
-  } catch (err) {
+  } catch (_err) {
     // 降級方案：使用 textarea
     const textarea = document.createElement("textarea");
     textarea.value = text;
