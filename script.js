@@ -16,6 +16,7 @@ const RESULT_ANIMATION_DELAY = 0.1; // 結果項目動畫延遲（秒）
 const elements = {
   participantsInput: document.getElementById("participants"),
   participantCount: document.getElementById("count"),
+  drawTitleInput: document.getElementById("draw-title"),
   drawCountInput: document.getElementById("draw-count"),
   allowDuplicateCheckbox: document.getElementById("allow-duplicate"),
   enableSoundCheckbox: document.getElementById("enable-sound"),
@@ -103,6 +104,11 @@ function attachEventListeners() {
   elements.copyBtn.addEventListener("click", handleCopy);
   elements.clearHistoryBtn.addEventListener("click", handleClearHistory);
   elements.drawCountInput.addEventListener("input", validateDrawCount);
+  // 當允許重複抽取選項變更時，更新按鈕與抽取數驗證
+  elements.allowDuplicateCheckbox?.addEventListener("change", () => {
+    updateParticipantCount();
+    validateDrawCount();
+  });
 }
 
 // ===== 處理參與者輸入 =====
@@ -117,9 +123,12 @@ function updateParticipantCount() {
   state.participants = participants;
   elements.participantCount.textContent = participants.length;
 
-  // 更新抽獎按鈕狀態
+  // 更新抽獎按鈕狀態（考慮允許重複抽取時可抽取人數不受參與者總數限制）
   const drawCount = Number.parseInt(elements.drawCountInput.value, 10) || 1;
-  const canDraw = participants.length > 0 && drawCount <= participants.length;
+  const allowDuplicate = elements.allowDuplicateCheckbox?.checked || false;
+  const canDraw =
+    participants.length > 0 &&
+    (allowDuplicate || drawCount <= participants.length);
   elements.drawBtn.disabled = !canDraw;
 }
 
@@ -299,6 +308,16 @@ function displayResults(winners) {
   // 播放勝利音效
   playWinSound();
 
+  const drawTitle = elements.drawTitleInput.value.trim();
+
+  // 如果有標題，先顯示標題
+  if (drawTitle) {
+    const titleElement = document.createElement("div");
+    titleElement.className = "result-title";
+    titleElement.innerHTML = `【${escapeHtml(drawTitle)}】`;
+    elements.resultDisplay.appendChild(titleElement);
+  }
+
   // 使用階梯式動畫顯示每個結果
   winners.forEach((winner, index) => {
     const timeoutId = setTimeout(() => {
@@ -385,8 +404,11 @@ async function handleCopy() {
 function saveToHistory(winners) {
   if (winners.length === 0) return;
 
+  const drawTitle = elements.drawTitleInput.value.trim();
+
   const record = {
     timestamp: new Date().toISOString(),
+    title: drawTitle || "",
     winners: winners,
     count: winners.length,
   };
@@ -435,11 +457,12 @@ function renderHistory() {
       const date = new Date(record.timestamp);
       const timeStr = formatDateTime(date);
       const winnersStr = record.winners.map((w) => escapeHtml(w)).join("、");
+      const titleStr = record.title ? `【${escapeHtml(record.title)}】` : "";
 
       return `
                 <div class="history-item">
                     <div class="history-time">${timeStr}</div>
-                    <div class="history-winners">${winnersStr}</div>
+                    <div class="history-winners">${titleStr}${winnersStr}</div>
                 </div>
             `;
     })

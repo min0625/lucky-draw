@@ -148,6 +148,7 @@ textarea:focus {
   font-weight: 500;
 }
 
+.settings-group input[type="text"],
 .settings-group input[type="number"] {
   padding: 0.5rem;
   border: 2px solid var(--border-color);
@@ -155,9 +156,17 @@ textarea:focus {
   font-size: 1rem;
   background: var(--card-background);
   color: var(--text-color);
+}
+
+.settings-group input[type="text"] {
+  width: 100%;
+}
+
+.settings-group input[type="number"] {
   width: 100px;
 }
 
+.settings-group input[type="text"]:focus,
 .settings-group input[type="number"]:focus {
   outline: none;
   border-color: var(--primary-color);
@@ -231,6 +240,16 @@ textarea:focus {
   text-align: center;
   padding: 2rem;
   font-style: italic;
+}
+
+.result-title {
+  padding: 1rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+  animation: slideIn 0.3s ease-out;
 }
 
 .result-item {
