@@ -6,6 +6,11 @@
 // ===== 常數定義 =====
 const STORAGE_KEY = "luckyDrawHistory";
 const MAX_HISTORY = 50;
+const DRAW_ANIMATION_DURATION = 1500; // 抽獎動畫持續時間（毫秒）
+const MAX_ROLLS = 30; // 名單滾動次數
+const ROLL_INTERVAL = 50; // 滾動間隔（毫秒）
+const RESULT_ITEM_DELAY = 200; // 結果項目顯示間隔（毫秒）
+const RESULT_ANIMATION_DELAY = 0.1; // 結果項目動畫延遲（秒）
 
 // ===== DOM 元素 =====
 const elements = {
@@ -30,6 +35,8 @@ const state = {
   participants: [],
   drawnParticipants: [],
   history: [],
+  activeTimeouts: [],
+  activeIntervals: [],
 };
 
 // ===== 音效管理 =====
@@ -65,7 +72,7 @@ function playSound(frequency, duration, type = "sine") {
     oscillator.start(ctx.currentTime);
     oscillator.stop(ctx.currentTime + duration);
   } catch (err) {
-    console.error("無法播放音效:", err);
+    console.error("Failed to play sound:", err);
   }
 }
 
@@ -160,8 +167,26 @@ function handleDraw() {
   performDrawAnimation(drawCount, allowDuplicate);
 }
 
+// ===== 清除動畫計時器 =====
+function clearAnimationTimers() {
+  // 清除所有待執行的 timeout
+  for (const timeoutId of state.activeTimeouts) {
+    clearTimeout(timeoutId);
+  }
+  state.activeTimeouts = [];
+
+  // 清除所有執行中的 interval
+  for (const intervalId of state.activeIntervals) {
+    clearInterval(intervalId);
+  }
+  state.activeIntervals = [];
+}
+
 // ===== 抽獎動畫 =====
 function performDrawAnimation(drawCount, allowDuplicate) {
+  // 清除之前的動畫計時器
+  clearAnimationTimers();
+
   // 禁用抽獎按鈕
   elements.drawBtn.disabled = true;
   elements.drawBtn.textContent = "🎲 抽獎中...";
@@ -169,8 +194,8 @@ function performDrawAnimation(drawCount, allowDuplicate) {
   // 顯示滾動動畫
   showRollingAnimation();
 
-  // 1.5 秒後顯示結果
-  setTimeout(() => {
+  // 在動畫結束後顯示結果
+  const timeoutId = setTimeout(() => {
     // 執行抽獎
     const winners = drawWinners(state.participants, drawCount, allowDuplicate);
 
@@ -188,7 +213,9 @@ function performDrawAnimation(drawCount, allowDuplicate) {
     // 恢復按鈕狀態
     elements.drawBtn.disabled = false;
     elements.drawBtn.textContent = "🎲 開始抽獎";
-  }, 1500);
+  }, DRAW_ANIMATION_DURATION);
+
+  state.activeTimeouts.push(timeoutId);
 }
 
 // ===== 顯示滾動動畫 =====
@@ -206,7 +233,6 @@ function showRollingAnimation() {
     elements.resultDisplay.querySelector(".rolling-animation");
 
   let counter = 0;
-  const maxRolls = 30;
   const interval = setInterval(() => {
     const randomIndex = Math.floor(
       Math.random() * availableParticipants.length
@@ -218,10 +244,17 @@ function showRollingAnimation() {
     playRollingSound();
 
     counter++;
-    if (counter >= maxRolls) {
+    if (counter >= MAX_ROLLS) {
       clearInterval(interval);
+      // 從追蹤清單移除
+      const index = state.activeIntervals.indexOf(interval);
+      if (index > -1) {
+        state.activeIntervals.splice(index, 1);
+      }
     }
-  }, 50);
+  }, ROLL_INTERVAL);
+
+  state.activeIntervals.push(interval);
 }
 
 // ===== 抽獎邏輯 =====
@@ -268,20 +301,34 @@ function displayResults(winners) {
 
   // 使用階梯式動畫顯示每個結果
   winners.forEach((winner, index) => {
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       const resultItem = document.createElement("div");
       resultItem.className = "result-item";
-      resultItem.style.animationDelay = `${index * 0.1}s`;
+      resultItem.style.animationDelay = `${index * RESULT_ANIMATION_DELAY}s`;
       resultItem.innerHTML = `🎉 ${index + 1}. ${escapeHtml(winner)}`;
       elements.resultDisplay.appendChild(resultItem);
 
       // 在最後一個項目顯示後顯示操作按鈕
       if (index === winners.length - 1) {
-        setTimeout(() => {
+        const buttonTimeoutId = setTimeout(() => {
           elements.resultActions.classList.add("show");
+          // 從追蹤清單移除
+          const idx = state.activeTimeouts.indexOf(buttonTimeoutId);
+          if (idx > -1) {
+            state.activeTimeouts.splice(idx, 1);
+          }
         }, 300);
+        state.activeTimeouts.push(buttonTimeoutId);
       }
-    }, index * 200);
+
+      // 從追蹤清單移除
+      const idx = state.activeTimeouts.indexOf(timeoutId);
+      if (idx > -1) {
+        state.activeTimeouts.splice(idx, 1);
+      }
+    }, index * RESULT_ITEM_DELAY);
+
+    state.activeTimeouts.push(timeoutId);
   });
 }
 
@@ -297,6 +344,7 @@ function handleClear() {
 
 // ===== 重置抽獎 =====
 function handleReset() {
+  clearAnimationTimers();
   state.drawnParticipants = [];
   elements.resultDisplay.innerHTML = '<p class="empty-state">尚未進行抽獎</p>';
   elements.resultActions.classList.remove("show");
