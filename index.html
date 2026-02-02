@@ -3,9 +3,73 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="簡單、直觀的純前端抽獎網頁工具">
-    <title>Lucky Draw - 抽獎工具</title>
+    <meta
+      name="description"
+      content="Lucky Draw - 免費純前端抽獎工具。支援自訂參與者、獎品名稱、隨機抽取人數。無需安裝，隱私保護，所有資料存於本地瀏覽器。"
+    >
+    <meta
+      name="keywords"
+      content="抽獎工具, 隨機選取, 幸運抽獎, 線上抽獎, 純前端, 免費工具"
+    >
+    <meta name="theme-color" content="#6366f1">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Lucky Draw">
+
+    <!-- Open Graph Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://min0625.github.io/lucky-draw/">
+    <meta property="og:title" content="Lucky Draw - 免費線上抽獎工具">
+    <meta
+      property="og:description"
+      content="簡單、直觀的純前端抽獎工具。無需安裝，隱私保護，支援自訂獎品和參與者。"
+    >
+    <meta
+      property="og:image"
+      content="https://min0625.github.io/lucky-draw/og-image.png"
+    >
+    <meta property="og:image:alt" content="Lucky Draw 抽獎工具">
+    <meta property="og:locale" content="zh_TW">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Lucky Draw - 免費線上抽獎工具">
+    <meta
+      name="twitter:description"
+      content="簡單、直觀的純前端抽獎工具。無需安裝，隱私保護。"
+    >
+    <meta
+      name="twitter:image"
+      content="https://min0625.github.io/lucky-draw/og-image.png"
+    >
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://min0625.github.io/lucky-draw/">
+
+    <title>Lucky Draw - 免費線上抽獎工具 | 純前端隨機選取</title>
     <link rel="stylesheet" href="styles.css">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Lucky Draw",
+      "description": "免費純前端抽獎工具，支援自訂參與者和獎品名稱",
+      "url": "https://min0625.github.io/lucky-draw/",
+      "applicationCategory": "Utility",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "creator": {
+        "@type": "Person",
+        "name": "min0625"
+      },
+      "inLanguage": "zh-TW",
+      "isAccessibleForFree": true
+    }
+    </script>
   </head>
   <body>
     <div class="container">
@@ -119,17 +183,18 @@
       </main>
 
       <footer>
-        <p>
-          🔒 所有資料僅存於本地瀏覽器，不會上傳至任何伺服器
-          <br>
+        <p>🔒 所有資料僅存於本地瀏覽器，不會上傳至任何伺服器</p>
+        <nav aria-label="外部連結">
           <a
             href="https://github.com/min0625/lucky-draw"
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
+            title="GitHub 專案頁面"
           >
             GitHub
           </a>
-        </p>
+        </nav>
+        <p><small>&copy; 2024-2026 Lucky Draw. 保留所有權利。</small></p>
       </footer>
     </div>
 
