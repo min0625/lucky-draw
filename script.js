@@ -22,9 +22,13 @@ const elements = {
   enableSoundCheckbox: document.getElementById("enable-sound"),
   drawBtn: document.getElementById("draw-btn"),
   clearBtn: document.getElementById("clear-btn"),
+  importBtn: document.getElementById("import-btn"),
+  importFile: document.getElementById("import-file"),
   resetBtn: document.getElementById("reset-btn"),
   copyBtn: document.getElementById("copy-btn"),
+  exportResultBtn: document.getElementById("export-result-btn"),
   clearHistoryBtn: document.getElementById("clear-history-btn"),
+  exportHistoryBtn: document.getElementById("export-history-btn"),
   resultDisplay: document.getElementById("result-display"),
   resultActions: document.getElementById("result-actions"),
   historyList: document.getElementById("history-list"),
@@ -38,6 +42,7 @@ const state = {
   history: [],
   activeTimeouts: [],
   activeIntervals: [],
+  currentWinners: [], // 儲存當前抽獎結果
 };
 
 // ===== 音效管理 =====
@@ -100,9 +105,13 @@ function attachEventListeners() {
   elements.participantsInput.addEventListener("input", handleParticipantsInput);
   elements.drawBtn.addEventListener("click", handleDraw);
   elements.clearBtn.addEventListener("click", handleClear);
+  elements.importBtn.addEventListener("click", handleImportClick);
+  elements.importFile.addEventListener("change", handleImportFile);
   elements.resetBtn.addEventListener("click", handleReset);
   elements.copyBtn.addEventListener("click", handleCopy);
+  elements.exportResultBtn.addEventListener("click", handleExportResult);
   elements.clearHistoryBtn.addEventListener("click", handleClearHistory);
+  elements.exportHistoryBtn.addEventListener("click", handleExportHistory);
   elements.drawCountInput.addEventListener("input", validateDrawCount);
   // 當允許重複抽取選項變更時，更新按鈕與抽取數驗證
   elements.allowDuplicateCheckbox?.addEventListener("change", () => {
@@ -303,6 +312,9 @@ function displayResults(winners) {
     return;
   }
 
+  // 儲存當前抽獎結果
+  state.currentWinners = winners;
+
   elements.resultDisplay.innerHTML = "";
 
   // 播放勝利音效
@@ -365,6 +377,7 @@ function handleClear() {
 function handleReset() {
   clearAnimationTimers();
   state.drawnParticipants = [];
+  state.currentWinners = [];
   elements.resultDisplay.innerHTML = '<p class="empty-state">尚未進行抽獎</p>';
   elements.resultActions.classList.remove("show");
 }
@@ -480,7 +493,271 @@ function handleClearHistory() {
   }
 }
 
+// ===== 匯入功能 =====
+function handleImportClick() {
+  elements.importFile.click();
+}
+
+async function handleImportFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const extension = file.name.split(".").pop().toLowerCase();
+
+    let participants = [];
+
+    switch (extension) {
+      case "csv":
+        participants = parseCSV(text);
+        break;
+      case "json":
+        participants = parseJSON(text);
+        break;
+      case "txt":
+        participants = parseTXT(text);
+        break;
+      default:
+        alert("不支援的檔案格式，請使用 CSV、JSON 或 TXT 檔案");
+        return;
+    }
+
+    if (participants.length === 0) {
+      alert("檔案中沒有找到有效的參與者名單");
+      return;
+    }
+
+    // 詢問是否覆蓋現有名單
+    const shouldReplace =
+      elements.participantsInput.value.trim() === "" ||
+      confirm(
+        `找到 ${participants.length} 位參與者。是否要覆蓋現有名單？\n按「取消」將會附加到現有名單。`
+      );
+
+    if (shouldReplace) {
+      elements.participantsInput.value = participants.join("\n");
+    } else {
+      const currentParticipants = getParticipants();
+      const allParticipants = [
+        ...new Set([...currentParticipants, ...participants]),
+      ];
+      elements.participantsInput.value = allParticipants.join("\n");
+    }
+
+    updateParticipantCount();
+    alert(`成功匯入 ${participants.length} 位參與者`);
+  } catch (error) {
+    console.error("匯入失敗:", error);
+    alert(`匯入失敗: ${error.message}`);
+  } finally {
+    // 清空 file input 以允許重複匯入相同檔案
+    event.target.value = "";
+  }
+}
+
+// ===== CSV 解析器 =====
+function parseCSV(text) {
+  const lines = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  const participants = [];
+
+  for (const line of lines) {
+    // 處理 CSV，支援逗號和分號分隔
+    const values = line
+      .split(/[,;]/)
+      .map((v) => v.trim())
+      .filter((v) => v.length > 0);
+
+    // 取第一欄作為參與者名稱（忽略其他欄位）
+    if (values.length > 0) {
+      participants.push(values[0]);
+    }
+  }
+
+  // 去除重複
+  return [...new Set(participants)];
+}
+
+// ===== JSON 解析器 =====
+function parseJSON(text) {
+  const data = JSON.parse(text);
+
+  // 支援多種 JSON 格式
+  if (Array.isArray(data)) {
+    // 格式 1: ["name1", "name2", ...]
+    if (data.every((item) => typeof item === "string")) {
+      return [...new Set(data.filter((item) => item.trim().length > 0))];
+    }
+
+    // 格式 2: [{name: "name1"}, {name: "name2"}, ...]
+    if (data.every((item) => typeof item === "object" && item.name)) {
+      return [
+        ...new Set(
+          data
+            .map((item) => item.name)
+            .filter(
+              (name) => typeof name === "string" && name.trim().length > 0
+            )
+        ),
+      ];
+    }
+
+    // 格式 3: [{participants: [...], ...}, ...]（抽獎記錄格式）
+    const firstItemWithParticipants = data.find((item) =>
+      Array.isArray(item.participants)
+    );
+    if (firstItemWithParticipants) {
+      return [
+        ...new Set(
+          firstItemWithParticipants.participants.filter(
+            (name) => typeof name === "string" && name.trim().length > 0
+          )
+        ),
+      ];
+    }
+  }
+
+  // 格式 4: {participants: [...]}
+  if (data.participants && Array.isArray(data.participants)) {
+    return [
+      ...new Set(
+        data.participants.filter(
+          (name) => typeof name === "string" && name.trim().length > 0
+        )
+      ),
+    ];
+  }
+
+  throw new Error("無法識別的 JSON 格式");
+}
+
+// ===== TXT 解析器 =====
+function parseTXT(text) {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .filter((name, index, self) => self.indexOf(name) === index); // 去除重複
+}
+
+// ===== 匯出結果功能 =====
+function handleExportResult() {
+  if (state.currentWinners.length === 0) {
+    alert("目前沒有抽獎結果可匯出");
+    return;
+  }
+
+  // 詢問匯出格式
+  const format = prompt(
+    "請選擇匯出格式：\n1. CSV\n2. TXT\n\n請輸入 1 或 2（預設為 TXT）",
+    "2"
+  );
+
+  if (format === null) return; // 取消
+
+  const drawTitle = elements.drawTitleInput.value.trim();
+  const timestamp = formatTimestampForFilename(new Date());
+
+  if (format === "1") {
+    // 匯出為 CSV
+    const csvContent = generateResultCSV(state.currentWinners, drawTitle);
+    downloadFile(
+      csvContent,
+      `抽獎結果_${timestamp}.csv`,
+      "text/csv;charset=utf-8;"
+    );
+  } else {
+    // 匯出為 TXT
+    const txtContent = generateResultTXT(state.currentWinners, drawTitle);
+    downloadFile(
+      txtContent,
+      `抽獎結果_${timestamp}.txt`,
+      "text/plain;charset=utf-8;"
+    );
+  }
+}
+
+// ===== 生成結果 CSV =====
+function generateResultCSV(winners, title) {
+  let csv = "序號,姓名\n";
+
+  if (title) {
+    csv = `標題,${title}\n${csv}`;
+  }
+
+  winners.forEach((winner, index) => {
+    csv += `${index + 1},${winner}\n`;
+  });
+
+  return csv;
+}
+
+// ===== 生成結果 TXT =====
+function generateResultTXT(winners, title) {
+  let txt = "";
+
+  if (title) {
+    txt += `【${title}】\n\n`;
+  }
+
+  txt += "抽獎結果：\n";
+  winners.forEach((winner, index) => {
+    txt += `${index + 1}. ${winner}\n`;
+  });
+
+  txt += `\n總計：${winners.length} 位`;
+
+  return txt;
+}
+
+// ===== 匯出記錄功能 =====
+function handleExportHistory() {
+  if (state.history.length === 0) {
+    alert("目前沒有抽獎記錄可匯出");
+    return;
+  }
+
+  const timestamp = formatTimestampForFilename(new Date());
+  const jsonContent = JSON.stringify(state.history, null, 2);
+
+  downloadFile(
+    jsonContent,
+    `抽獎記錄_${timestamp}.json`,
+    "application/json;charset=utf-8;"
+  );
+
+  alert(`成功匯出 ${state.history.length} 筆抽獎記錄`);
+}
+
+// ===== 下載檔案 =====
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 // ===== 工具函式 =====
+function formatTimestampForFilename(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${year}${month}${day}-${hours}${minutes}${seconds}`;
+}
+
 function formatDateTime(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
