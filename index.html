@@ -96,6 +96,7 @@
               >
               <button
                 id="clear-btn"
+                type="button"
                 class="btn btn-secondary"
                 aria-label="清空名單"
               >
@@ -140,7 +141,12 @@
             </label>
           </div>
 
-          <button id="draw-btn" class="btn btn-primary" aria-label="開始抽獎">
+          <button
+            id="draw-btn"
+            type="button"
+            class="btn btn-primary"
+            aria-label="開始抽獎"
+          >
             🎲 開始抽獎
           </button>
         </section>
@@ -153,6 +159,7 @@
           <div class="result-actions" id="result-actions">
             <button
               id="reset-btn"
+              type="button"
               class="btn btn-secondary"
               aria-label="重置抽獎"
             >
@@ -160,6 +167,7 @@
             </button>
             <button
               id="copy-btn"
+              type="button"
               class="btn btn-secondary"
               aria-label="複製結果"
             >
@@ -175,6 +183,7 @@
           </div>
           <button
             id="clear-history-btn"
+            type="button"
             class="btn btn-secondary"
             aria-label="清除記錄"
           >
@@ -195,8 +204,41 @@
             GitHub
           </a>
         </nav>
-        <p><small>&copy; 2024-2026 Lucky Draw. 保留所有權利。</small></p>
+        <p><small id="copyright-year"></small></p>
       </footer>
+    </div>
+
+    <!-- 通知提示 -->
+    <div
+      id="notification"
+      class="notification"
+      role="alert"
+      aria-live="polite"
+    ></div>
+
+    <!-- 確認對話框 -->
+    <div
+      id="confirm-modal"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirm-message"
+    >
+      <div class="modal">
+        <p id="confirm-message"></p>
+        <div class="modal-actions">
+          <button
+            id="confirm-cancel-btn"
+            type="button"
+            class="btn btn-secondary"
+          >
+            取消
+          </button>
+          <button id="confirm-ok-btn" type="button" class="btn btn-primary">
+            確定
+          </button>
+        </div>
+      </div>
     </div>
 
     <script src="script.js"></script>
