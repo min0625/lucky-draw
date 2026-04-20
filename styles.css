@@ -1,5 +1,6 @@
 /* ===== CSS 變數 ===== */
 :root {
+  color-scheme: light dark;
   --primary-color: #4f46e5;
   --primary-hover: #4338ca;
   --secondary-color: #64748b;
@@ -299,7 +300,6 @@ textarea:focus {
 }
 
 .result-actions {
-  display: flex;
   gap: 0.75rem;
   margin-top: 1rem;
   display: none;
@@ -407,4 +407,77 @@ footer a:hover {
 *:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
+}
+
+/* ===== 通知提示 ===== */
+.notification {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--text-color);
+  color: var(--card-background);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
+  z-index: 1000;
+  max-width: 90vw;
+  text-align: center;
+  pointer-events: none;
+}
+
+.notification.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ===== 確認對話框 ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.modal {
+  background: var(--card-background);
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal p {
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.modal-actions .btn-primary {
+  width: auto;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
 }
